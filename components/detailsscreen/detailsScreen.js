@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, Share, Image, Dimensions } from 'react-native';
-import { Query } from 'react-apollo';
+import { Query, Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import {
     Provider as PaperProvider,
@@ -25,10 +25,32 @@ const GET_ONE_RECIPY = gql`query getRecipy($id: ID = "cjj6p833cw0b40183x2jkbeh3"
         }
     }`;
 
+  const CHECK_FAVORITE = gql`query getFavorite($userID: String!, $recipyID: String!) {
+    allFavorites(filter: {
+      AND: [{
+        userID: $userID
+      }, {
+        recipyID: $recipyID
+      }]
+    }){
+        id
+    }
+}`;
+
+const ADD_FAVORITE = gql`mutation CreateFavorite($userID: String!, $recipyID: String!) {
+  createFavorite(
+      userID: $userID
+      recipyID: $recipyID
+    ) {
+      id
+    }
+  }`;   
+
 class DetailsScreen extends React.Component {
   state = {
       visible: false,
-    };
+      isFavorite: false,
+    }
   data = null;
     
   static navigationOptions = {
@@ -41,6 +63,19 @@ class DetailsScreen extends React.Component {
         fontWeight: 'bold',
       },
   };
+  // should check if receipt already in favorites
+  // dunno why doesn't work
+  componentDidMount = () => {
+    const userID = this.props.navigation.getParam('userID');
+    const recipyID = this.props.navigation.getParam('recipeID');
+    <Query query={GET_ONE_RECIPY} variables={{userID: userID, recipyID: recipyID}}>
+      {({loading, data, error}) => {
+       if (data) {
+         this.setState(prevState => ({isFavorite: true}));
+        }
+      }}
+    </Query>
+  };
 
   handleShare = () => {
     const recipe = this.data.Recipy;
@@ -51,11 +86,12 @@ class DetailsScreen extends React.Component {
       }, {
         dialogTitle: 'Share with friends',
       })
-    }
-    
+    }  
   }
+
   renderDetails = (id) => {
     return(
+      <View>
         <Query query={GET_ONE_RECIPY} variables={{id}}>
             {({loading, data, error}) => {
             this.data = data;
@@ -79,12 +115,41 @@ class DetailsScreen extends React.Component {
                   <CardCover source={{ uri: data.Recipy.image }} />
                   <CardActions style={styles.cardAction}>
                     <Button primary onPress={this.handleShare}> Share </Button>
+                    {!this.state.isFavorite && <Mutation mutation={ADD_FAVORITE}>
+                    {(CreateFavorite, {data, loading, error}) => (
+                          
+                        <Button
+                          onPress={async () => {
+                            const userID = this.props.navigation.getParam('userID');
+                            const recipyID = this.props.navigation.getParam('recipeID');
+                            console.log('uid', userID, 'rid', recipyID)
+                            if (userID && recipyID) {
+                                const res = await CreateFavorite({
+                                variables: {
+                                  userID: userID,
+                                  recipyID: recipyID,
+                                }
+                              });
+                              this.setState(prevState => ({isFavorite: true}));
+                              console.log('added to fav', res)
+                            } else {
+                              alert("Something wrong, please try again");
+                            }
+                          }}
+                        >
+                        Add to favorites
+                        </Button>
+                    )}
+                    </Mutation>}
+                    {this.state.isFavorite && <Button>Added to favorites</Button>}
                 </CardActions>
                 </Card>
                 </React.Fragment>
                 ));
             }}
         </Query>
+        
+        </View>
     );        
   }
 
@@ -92,7 +157,7 @@ class DetailsScreen extends React.Component {
     return (
        <PaperProvider>
         <View style={styles.container}>
-            {this.renderDetails(this.props.navigation.getParam('id'))}
+            {this.renderDetails(this.props.navigation.getParam('recipeID'))}
         </View>
         </PaperProvider>
     );

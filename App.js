@@ -7,6 +7,8 @@ import DetailsScreen from './components/detailsscreen/detailsScreen';
 import CreateRecipeScreen from './components/createrecipescreen/createrecipe';
 import RegisterScreen from './components/authscreen/registerscreen';
 import LoginScreen from './components/authscreen/loginscreen';
+import FavoritesScreen from './components/favoritesscreen/favoritesscreen';
+
 import { AppLoading, Font } from 'expo';
 import FontAwesome  
 from './node_modules/@expo/vector-icons/fonts/FontAwesome.ttf';
@@ -22,6 +24,7 @@ const RootStack = createStackNavigator(
     Home: HomeScreen,
     Details: DetailsScreen,
     CreateRecipe: CreateRecipeScreen,
+    Favorites: FavoritesScreen,
     Register: RegisterScreen,
     Login: LoginScreen,
   },

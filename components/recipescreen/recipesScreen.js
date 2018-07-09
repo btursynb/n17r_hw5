@@ -31,10 +31,12 @@ class RecipesScreen extends React.Component {
     },
   }
   render() {
+    const userID = this.props.navigation.getParam('userID');
     return (
        <PaperProvider>
         <View style={styles.container}>
           <RecipesList navigation={this.props.navigation} query={GET_ALL_RECIPES}/>
+          <Button  onPress={()=>this.props.navigation.navigate("Favorites", {userID: userID})} style={styles.btnFav}>Go to favorites</Button>
           <FAB
               medium
               icon="add"
@@ -49,6 +51,7 @@ class RecipesScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'flex-start',
     backgroundColor: '#fff',
     alignItems: 'stretch',
 //  marginTop: Constants.statusBarHeight
@@ -58,6 +61,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 10,
     right: 10,
+  },
+  btnFav: {
+    
   },
 });
 

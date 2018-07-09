@@ -16,12 +16,13 @@ import { createStackNavigator } from 'react-navigation';
 class RecipesList extends React.Component {
   
   renderRecipe = ({item: recipe}) => {
+    const userID = this.props.navigation.getParam('userID');
     return (
       <View style={styles.listItem}>
          <TouchableOpacity
             key={recipe.id}
             style={styles.recipyItem}
-             onPress={() => this.props.navigation.navigate('Details', { id: recipe.id })}
+             onPress={() => this.props.navigation.navigate('Details', { recipeID: recipe.id, userID: userID })}
           >
           <Image
             style={styles.recipePicSmall}

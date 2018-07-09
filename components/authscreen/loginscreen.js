@@ -69,7 +69,8 @@ class LoginScreen extends React.Component {
                           password: this.state.password,
                         }
                       });
-                      this.props.navigation.navigate('Home')
+                      
+                      this.props.navigation.navigate('Home', {userID: res.data.signinUser.user.id})
                     } else {
                       alert("Please enter email and password");
                     }
